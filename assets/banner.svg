@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" role="img" aria-label="Phone Temperature Checker banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="50%" stop-color="#0e1530"/>
+      <stop offset="100%" stop-color="#0a0f24"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#1e293b" stroke-width="0.5" opacity="0.4"/>
+    </pattern>
+  </defs>
+
+  <rect width="1280" height="320" fill="url(#bg)"/>
+  <rect width="1280" height="320" fill="url(#grid)"/>
+
+  <!-- decorative blurred orbs -->
+  <circle cx="200" cy="60" r="180" fill="#22d3ee" opacity="0.08"/>
+  <circle cx="1080" cy="280" r="200" fill="#a78bfa" opacity="0.10"/>
+
+  <!-- terminal frame left -->
+  <g transform="translate(80, 60)">
+    <rect x="0" y="0" width="220" height="200" rx="14" fill="#0f172a" stroke="url(#accent)" stroke-width="1.5"/>
+    <circle cx="18" cy="18" r="5" fill="#ff5f56"/>
+    <circle cx="36" cy="18" r="5" fill="#ffbd2e"/>
+    <circle cx="54" cy="18" r="5" fill="#27c93f"/>
+    <text x="14" y="60" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#22d3ee">$ temp_checker</text>
+    <text x="14" y="82" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#94a3b8">[18:45:30]</text>
+    <text x="84" y="82" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#27c93f">38.1°C Warm</text>
+    <text x="14" y="102" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#94a3b8">DISCHARGING  41%  522 mA</text>
+    <text x="14" y="124" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#fbbf24">[18:45:33]</text>
+    <text x="94" y="124" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#fbbf24">39.4°C Warm</text>
+    <text x="14" y="144" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#94a3b8">min 38.1  max 39.4</text>
+    <text x="14" y="164" font-family="ui-monospace, Menlo, monospace" font-size="11" fill="#22d3ee">avg 38.7  (n=3)</text>
+    <text x="14" y="184" font-family="ui-monospace, Menlo, monospace" font-size="10" fill="#64748b">Ctrl+C to stop</text>
+  </g>
+
+  <!-- title block -->
+  <g transform="translate(360, 110)">
+    <text font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" fill="#f8fafc" letter-spacing="-1">Phone</text>
+    <text x="0" y="62" font-family="Inter, system-ui, sans-serif" font-size="56" font-weight="800" fill="url(#accent)" letter-spacing="-1">Temperature Checker</text>
+    <text x="0" y="100" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="500" fill="#94a3b8">A self-contained battery monitor for Termux · written in C</text>
+    <text x="0" y="138" font-family="ui-monospace, Menlo, monospace" font-size="13" fill="#64748b">sh ./temp_checker   # press Ctrl+C to quit</text>
+  </g>
+
+  <!-- thermometer ornament right -->
+  <g transform="translate(1140, 60)">
+    <circle cx="0" cy="120" r="22" fill="none" stroke="url(#ring)" stroke-width="3"/>
+    <circle cx="0" cy="120" r="10" fill="#ef4444"/>
+    <rect x="-5" y="40" width="10" height="60" rx="5" fill="none" stroke="url(#ring)" stroke-width="3"/>
+    <rect x="-5" y="80" width="10" height="20" rx="5" fill="#ef4444"/>
+    <line x1="-9" y1="58" x2="-22" y2="58" stroke="#22d3ee" stroke-width="2"/>
+    <line x1="-9" y1="78" x2="-22" y2="78" stroke="#22d3ee" stroke-width="2"/>
+    <line x1="-9" y1="98" x2="-22" y2="98" stroke="#22d3ee" stroke-width="2"/>
+  </g>
+
+  <!-- bottom hairline -->
+  <rect x="0" y="318" width="1280" height="2" fill="url(#accent)" opacity="0.6"/>
+</svg>

@@ -1,0 +1,267 @@
+#!/data/data/com.termux/files/usr/bin/sh
+# temp_checker — self-contained phone temperature checker
+#
+# This script embeds the C source. On first run it:
+#   1. Writes the C source to $HOME/.cache/temp_checker/temp_checker.c
+#   2. Compiles it to $HOME/.cache/temp_checker/temp_checker
+#   3. Executes the compiled binary
+#
+# On later runs it skips steps 1+2 if the binary already exists and
+# is newer than this script.
+#
+# Works from any path (Android Workspace, /sdcard, $HOME, anywhere).
+# Just run:  sh /path/to/temp_checker   or   sh ./temp_checker
+
+set -e
+
+CACHE_DIR="$HOME/.cache/temp_checker"
+SRC="$CACHE_DIR/temp_checker.c"
+BIN="$CACHE_DIR/temp_checker"
+SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
+
+mkdir -p "$CACHE_DIR"
+
+# ---------- write C source if missing or script is newer ----------
+if [ ! -f "$BIN" ] || [ "$SELF" -nt "$BIN" ]; then
+    printf '\033[36m[setup]\033[0m Building temp_checker...\n'
+    cat > "$SRC" <<'C_SOURCE_EOF'
+/*
+ * temp_checker.c — Phone battery temperature monitor
+ *
+ * Reads battery temperature via `termux-battery-status` and prints
+ * a color-coded status line every few seconds. Ctrl+C to exit.
+ *
+ * Build: clang -O2 temp_checker.c -o temp_checker -lm
+ * Run:   ./temp_checker
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+#include <math.h>
+#include <unistd.h>
+#include <signal.h>
+#include <ctype.h>
+
+/* ---------- ANSI color codes ---------- */
+#define C_RESET   "\033[0m"
+#define C_BOLD    "\033[1m"
+#define C_DIM     "\033[2m"
+#define C_GREEN   "\033[32m"
+#define C_YELLOW  "\033[33m"
+#define C_ORANGE  "\033[38;5;208m"
+#define C_RED     "\033[31m"
+#define C_CYAN    "\033[36m"
+#define C_GREY    "\033[90m"
+
+static volatile sig_atomic_t g_running = 1;
+
+static void on_sigint(int sig) {
+    (void)sig;
+    g_running = 0;
+    /* write() is async-signal-safe; printf() is not. */
+    if (write(STDOUT_FILENO, "\n", 1) < 0) { /* ignore */ }
+}
+
+/* ---------- JSON field extractor ---------- */
+static int json_get_number(const char *json, const char *key, double *out) {
+    if (!json || !key || !out) return 0;
+    char pat[64];
+    snprintf(pat, sizeof(pat), "\"%s\"", key);
+    const char *p = strstr(json, pat);
+    if (!p) return 0;
+    p += strlen(pat);
+    while (*p && (isspace((unsigned char)*p) || *p == ':')) p++;
+    if (!*p) return 0;
+    char *endp = NULL;
+    double v = strtod(p, &endp);
+    if (endp == p) return 0;
+    *out = v;
+    return 1;
+}
+
+static int json_get_string(const char *json, const char *key,
+                           char *out, size_t outsz) {
+    if (!json || !key || !out || outsz == 0) return 0;
+    char pat[64];
+    snprintf(pat, sizeof(pat), "\"%s\"", key);
+    const char *p = strstr(json, pat);
+    if (!p) return 0;
+    p += strlen(pat);
+    while (*p && (isspace((unsigned char)*p) || *p == ':')) p++;
+    if (*p != '"') return 0;
+    p++;
+    size_t i = 0;
+    while (*p && *p != '"' && i + 1 < outsz) {
+        out[i++] = *p++;
+    }
+    out[i] = '\0';
+    return 1;
+}
+
+/* ---------- Read battery info from termux-battery-status ---------- */
+static int read_battery(double *temp_c, char *status, size_t stat_sz,
+                        int *level, double *current_ma) {
+    FILE *fp = popen("termux-battery-status 2>/dev/null", "r");
+    if (!fp) return 0;
+
+    char buf[8192];
+    size_t n = fread(buf, 1, sizeof(buf) - 1, fp);
+    buf[n] = '\0';
+    pclose(fp);
+
+    if (n == 0) return 0;
+    if (!temp_c) return 0;
+    if (!json_get_number(buf, "temperature", temp_c)) return 0;
+
+    if (status && stat_sz > 0) {
+        json_get_string(buf, "status", status, stat_sz);
+    }
+    if (level) {
+        double lv = 0;
+        if (json_get_number(buf, "level", &lv)) {
+            *level = (int)lv;
+        } else {
+            *level = -1;
+        }
+    }
+    if (current_ma) {
+        double ua = 0;
+        if (json_get_number(buf, "current", &ua)) {
+            *current_ma = fabs(ua) / 1000.0;  /* µA → mA, always positive */
+        } else {
+            *current_ma = 0;
+        }
+    }
+    return 1;
+}
+
+/* ---------- Pick color & label for a temperature ---------- */
+static void temp_style(double c, const char **color, const char **label) {
+    if (c < 35.0) {
+        *color = C_GREEN;  *label = "Normal";
+    } else if (c < 40.0) {
+        *color = C_YELLOW; *label = "Warm";
+    } else if (c < 45.0) {
+        *color = C_ORANGE; *label = "Hot - close heavy apps!";
+    } else {
+        *color = C_RED;    *label = "CRITICAL - let it cool down!";
+    }
+}
+
+static void print_banner(void) {
+    printf(C_BOLD C_CYAN);
+    printf("============================================\n");
+    printf("   Phone Temperature Checker  (Ctrl+C = quit)\n");
+    printf("============================================\n");
+    printf(C_RESET);
+}
+
+static void print_line(double temp_c, const char *status,
+                       int level, double current_ma,
+                       double min_c, double max_c, double avg_c,
+                       long samples) {
+    time_t now = time(NULL);
+    struct tm tm_now;
+    localtime_r(&now, &tm_now);
+    char tbuf[16];
+    strftime(tbuf, sizeof(tbuf), "%H:%M:%S", &tm_now);
+
+    const char *color, *label;
+    temp_style(temp_c, &color, &label);
+
+    printf(C_GREY "[%s] " C_RESET, tbuf);
+    printf("%s%-5.1f°C%s  %s%s%s",
+           color, temp_c, C_RESET, color, label, C_RESET);
+
+    printf(C_DIM "  |  %s", (status[0] ? status : "?"));
+    if (level >= 0) printf("  |  %d%%", level);
+    printf("  |  %.0f mA", fabs(current_ma));
+
+    if (samples > 1) {
+        printf("  |  min %.1f  max %.1f  avg %.1f  (n=%ld)",
+               min_c, max_c, avg_c, samples);
+    }
+    printf(C_RESET "\n");
+    fflush(stdout);
+}
+
+int main(void) {
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = on_sigint;
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, NULL);
+
+    printf("\033[?25l\033[2J\033[H");
+    print_banner();
+
+    /* Sanity check: does termux-battery-status work? */
+    double probe_t = 0;
+    int probe_level = 0;
+    double probe_ma = 0;
+    char probe_s[32] = "";
+    if (!read_battery(&probe_t, probe_s, sizeof(probe_s),
+                      &probe_level, &probe_ma)) {
+        printf(C_RED C_BOLD
+               "\n  Could not read battery info.\n"
+               "  Is the Termux:API Android app installed?\n\n" C_RESET);
+        printf("\033[?25h");
+        return 1;
+    }
+
+    printf("\033[2J\033[H");
+    print_banner();
+    printf(C_DIM "  Refreshing every 3 seconds. Press Ctrl+C to stop.\n\n" C_RESET);
+
+    double sum = 0;
+    double min_c = 1e9, max_c = -1e9;
+    long samples = 0;
+    const int interval_s = 3;
+
+    while (g_running) {
+        double t = 0, ma = 0;
+        char status[32] = "";
+        int level = -1;
+
+        if (read_battery(&t, status, sizeof(status), &level, &ma)) {
+            samples++;
+            sum += t;
+            if (t < min_c) min_c = t;
+            if (t > max_c) max_c = t;
+            print_line(t, status, level, ma,
+                       min_c, max_c, sum / (double)samples, samples);
+        } else {
+            printf(C_RED "[--:--:--]  read failed (API app stopped?)\n" C_RESET);
+        }
+
+        /* Sleep in small steps so Ctrl+C is responsive */
+        for (int i = 0; i < interval_s * 10 && g_running; i++) {
+            usleep(100 * 1000);
+        }
+    }
+
+    printf("\033[?25h");
+    if (samples > 0) {
+        printf(C_DIM
+               "  Session: %ld samples, min %.1f°C, max %.1f°C, avg %.1f°C\n" C_RESET,
+               samples, min_c, max_c, sum / (double)samples);
+    }
+    printf(C_RESET);
+    return 0;
+}
+C_SOURCE_EOF
+
+    if ! command -v clang >/dev/null 2>&1; then
+        printf '\033[31m[setup]\033[0m clang not found. Run: pkg install clang\n' >&2
+        exit 1
+    fi
+
+    clang -O2 -Wall -Wextra "$SRC" -o "$BIN" -lm
+    chmod +x "$BIN"
+    printf '\033[32m[setup]\033[0m Built %s\n' "$BIN"
+fi
+
+# ---------- run ----------
+exec "$BIN"

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" role="img" aria-label="Phone Temperature Checker social preview">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0f24"/>
+      <stop offset="100%" stop-color="#0b1020"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="50%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <pattern id="dots" width="40" height="40" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#1e293b" opacity="0.7"/>
+    </pattern>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect width="1280" height="640" fill="url(#dots)"/>
+  <circle cx="640" cy="320" r="420" fill="url(#glow)"/>
+
+  <!-- left: large thermometer -->
+  <g transform="translate(180, 130)">
+    <rect x="-30" y="0" width="60" height="320" rx="30" fill="none" stroke="url(#accent)" stroke-width="6"/>
+    <circle cx="0" cy="340" r="60" fill="none" stroke="url(#accent)" stroke-width="6"/>
+    <circle cx="0" cy="340" r="32" fill="#ef4444"/>
+    <rect x="-22" y="220" width="44" height="120" rx="22" fill="#ef4444"/>
+    <rect x="-22" y="40" width="44" height="160" rx="22" fill="url(#accent)" opacity="0.7"/>
+    <g font-family="ui-monospace, Menlo, monospace" font-size="14" fill="#64748b">
+      <text x="48" y="50">45°C</text>
+      <text x="48" y="120">35°C</text>
+      <text x="48" y="200">25°C</text>
+    </g>
+    <g stroke="#64748b" stroke-width="2">
+      <line x1="-26" y1="46" x2="-38" y2="46"/>
+      <line x1="-26" y1="116" x2="-38" y2="116"/>
+      <line x1="-26" y1="196" x2="-38" y2="196"/>
+    </g>
+  </g>
+
+  <!-- right: text block -->
+  <g transform="translate(380, 220)">
+    <text font-family="Inter, system-ui, sans-serif" font-size="84" font-weight="900" fill="#f8fafc" letter-spacing="-2">Temperature</text>
+    <text x="0" y="84" font-family="Inter, system-ui, sans-serif" font-size="84" font-weight="900" fill="url(#accent)" letter-spacing="-2">Checker</text>
+    <text x="0" y="140" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="500" fill="#94a3b8">Battery temperature, charge level &amp; current —</text>
+    <text x="0" y="168" font-family="Inter, system-ui, sans-serif" font-size="22" font-weight="500" fill="#94a3b8">right inside your Termux terminal.</text>
+
+    <!-- terminal snippet -->
+    <g transform="translate(0, 210)">
+      <rect x="0" y="0" width="820" height="120" rx="12" fill="#0f172a" stroke="#1e293b" stroke-width="1"/>
+      <text x="20" y="36" font-family="ui-monospace, Menlo, monospace" font-size="14" fill="#22d3ee">$ sh ./temp_checker</text>
+      <text x="20" y="62" font-family="ui-monospace, Menlo, monospace" font-size="14" fill="#27c93f">[18:45] 38.1°C Warm | DISCHARGING | 41% | 522 mA</text>
+      <text x="20" y="86" font-family="ui-monospace, Menlo, monospace" font-size="14" fill="#fbbf24">[18:48] 42.7°C Hot - close heavy apps!</text>
+      <text x="20" y="110" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#64748b">Press Ctrl+C to stop</text>
+    </g>
+  </g>
+
+  <!-- footer strip -->
+  <rect x="0" y="624" width="1280" height="2" fill="url(#accent)"/>
+</svg>

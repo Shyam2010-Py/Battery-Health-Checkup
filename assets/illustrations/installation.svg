@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" role="img" aria-label="Installation illustration">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b1020"/>
+      <stop offset="100%" stop-color="#0a0f24"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22d3ee"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="400" fill="url(#bg)"/>
+
+  <!-- 4 steps -->
+  <g font-family="Inter, system-ui, sans-serif">
+    <!-- step 1: f-droid -->
+    <g transform="translate(60, 120)">
+      <circle r="34" cx="40" cy="40" fill="#0f172a" stroke="url(#accent)" stroke-width="2"/>
+      <text x="40" y="48" text-anchor="middle" font-size="22" font-weight="800" fill="#22d3ee">1</text>
+      <text x="90" y="34" font-size="14" font-weight="700" fill="#f8fafc">Install Termux</text>
+      <text x="90" y="54" font-size="12" fill="#94a3b8">F-Droid build only</text>
+      <text x="90" y="72" font-size="12" fill="#94a3b8">com.termux</text>
+    </g>
+
+    <!-- step 2: termux:api -->
+    <g transform="translate(280, 120)">
+      <circle r="34" cx="40" cy="40" fill="#0f172a" stroke="url(#accent)" stroke-width="2"/>
+      <text x="40" y="48" text-anchor="middle" font-size="22" font-weight="800" fill="#3b82f6">2</text>
+      <text x="90" y="34" font-size="14" font-weight="700" fill="#f8fafc">Install Termux:API</text>
+      <text x="90" y="54" font-size="12" fill="#94a3b8">Android companion app</text>
+      <text x="90" y="72" font-size="12" fill="#94a3b8">com.termux.api</text>
+    </g>
+
+    <!-- step 3: pkg install -->
+    <g transform="translate(500, 120)">
+      <circle r="34" cx="40" cy="40" fill="#0f172a" stroke="url(#accent)" stroke-width="2"/>
+      <text x="40" y="48" text-anchor="middle" font-size="22" font-weight="800" fill="#a78bfa">3</text>
+      <text x="-30" y="34" font-size="14" font-weight="700" fill="#f8fafc">pkg install</text>
+    </g>
+
+    <!-- arrows -->
+    <g stroke="url(#accent)" stroke-width="2" stroke-linecap="round" fill="none">
+      <line x1="170" y1="160" x2="220" y2="160"/>
+      <polyline points="210,154 220,160 210,166"/>
+      <line x1="390" y1="160" x2="440" y2="160"/>
+      <polyline points="430,154 440,160 430,166"/>
+    </g>
+
+    <!-- code panel for step 3 -->
+    <g transform="translate(470, 200)">
+      <rect width="280" height="120" rx="10" fill="#0f172a" stroke="#1e293b"/>
+      <text x="14" y="28" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#22d3ee">$ pkg install clang termux-api</text>
+      <text x="14" y="52" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#27c93f">[y/n] y</text>
+      <text x="14" y="76" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#94a3b8">Reading package lists... Done</text>
+      <text x="14" y="100" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#94a3b8">✔ Done.</text>
+    </g>
+
+    <!-- step 4: run -->
+    <g transform="translate(180, 280)">
+      <circle r="34" cx="40" cy="40" fill="#0f172a" stroke="url(#accent)" stroke-width="2"/>
+      <text x="40" y="48" text-anchor="middle" font-size="22" font-weight="800" fill="#27c93f">4</text>
+      <text x="90" y="34" font-size="14" font-weight="700" fill="#f8fafc">Run</text>
+      <text x="90" y="54" font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#22d3ee">sh ./temp_checker</text>
+    </g>
+
+    <!-- arrow 3 to 4 -->
+    <g stroke="url(#accent)" stroke-width="2" stroke-linecap="round" fill="none">
+      <line x1="500" y1="320" x2="240" y2="320"/>
+      <polyline points="250,314 240,320 250,326"/>
+    </g>
+  </g>
+</svg>
