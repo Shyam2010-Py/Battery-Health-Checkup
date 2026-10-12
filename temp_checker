@@ -25,15 +25,15 @@ mkdir -p "$CACHE_DIR"
 if [ ! -f "$BIN" ] || [ "$SELF" -nt "$BIN" ]; then
     printf '\033[36m[setup]\033[0m Building temp_checker...\n'
     cat > "$SRC" <<'C_SOURCE_EOF'
-/*
- * temp_checker.c — Phone battery temperature monitor
- *
- * Reads battery temperature via `termux-battery-status` and prints
- * a color-coded status line every few seconds. Ctrl+C to exit.
- *
- * Build: clang -O2 temp_checker.c -o temp_checker -lm
- * Run:   ./temp_checker
- */
+  
+                                                     
+  
+                                                                   
+                                                               
+  
+                                                      
+                        
+   
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +44,7 @@ if [ ! -f "$BIN" ] || [ "$SELF" -nt "$BIN" ]; then
 #include <signal.h>
 #include <ctype.h>
 
-/* ---------- ANSI color codes ---------- */
+                                            
 #define C_RESET   "\033[0m"
 #define C_BOLD    "\033[1m"
 #define C_DIM     "\033[2m"
@@ -60,11 +60,11 @@ static volatile sig_atomic_t g_running = 1;
 static void on_sigint(int sig) {
     (void)sig;
     g_running = 0;
-    /* write() is async-signal-safe; printf() is not. */
-    if (write(STDOUT_FILENO, "\n", 1) < 0) { /* ignore */ }
+                                                        
+    if (write(STDOUT_FILENO, "\n", 1) < 0) {              }
 }
 
-/* ---------- JSON field extractor ---------- */
+                                                
 static int json_get_number(const char *json, const char *key, double *out) {
     if (!json || !key || !out) return 0;
     char pat[64];
@@ -100,7 +100,7 @@ static int json_get_string(const char *json, const char *key,
     return 1;
 }
 
-/* ---------- Read battery info from termux-battery-status ---------- */
+                                                                        
 static int read_battery(double *temp_c, char *status, size_t stat_sz,
                         int *level, double *current_ma) {
     FILE *fp = popen("termux-battery-status 2>/dev/null", "r");
@@ -129,7 +129,7 @@ static int read_battery(double *temp_c, char *status, size_t stat_sz,
     if (current_ma) {
         double ua = 0;
         if (json_get_number(buf, "current", &ua)) {
-            *current_ma = fabs(ua) / 1000.0;  /* µA → mA, always positive */
+            *current_ma = fabs(ua) / 1000.0;                                
         } else {
             *current_ma = 0;
         }
@@ -137,7 +137,7 @@ static int read_battery(double *temp_c, char *status, size_t stat_sz,
     return 1;
 }
 
-/* ---------- Pick color & label for a temperature ---------- */
+                                                                
 static void temp_style(double c, const char **color, const char **label) {
     if (c < 35.0) {
         *color = C_GREEN;  *label = "Normal";
@@ -197,7 +197,7 @@ int main(void) {
     printf("\033[?25l\033[2J\033[H");
     print_banner();
 
-    /* Sanity check: does termux-battery-status work? */
+                                                        
     double probe_t = 0;
     int probe_level = 0;
     double probe_ma = 0;
@@ -236,7 +236,7 @@ int main(void) {
             printf(C_RED "[--:--:--]  read failed (API app stopped?)\n" C_RESET);
         }
 
-        /* Sleep in small steps so Ctrl+C is responsive */
+                                                          
         for (int i = 0; i < interval_s * 10 && g_running; i++) {
             usleep(100 * 1000);
         }
